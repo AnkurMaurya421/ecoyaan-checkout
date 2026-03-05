@@ -33,7 +33,7 @@ export default function Shipping() {
   };
 
   return (
-    <div className="container">
+    <div className="container shipping-container">
       <h1>Shipping Address</h1>
       
       <form onSubmit={handleSubmit} className="card">

@@ -14,7 +14,7 @@ body {
 
 .container {
   max-width: 90%;
-  margin: 0 auto;
+  margin: 5% 5% 5% 5%;
   
 }
 
@@ -197,4 +197,18 @@ input:focus {
   .item-price {
     align-self: flex-end;
   }
+}
+.success-card{
+    max-width: 70%;
+    margin-top: 10%;
+    margin-bottom: 10%;
+    margin-left: 15%;
+    margin-right: 15%;
+}
+.shipping-container{
+    max-width: 70%;
+    margin-top: 5%;
+    margin-bottom: 5%;
+    margin-left: 15%;
+    
 }
