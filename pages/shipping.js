@@ -1,0 +1,106 @@
+import { useState } from 'react';
+import { useRouter } from 'next/router';
+
+export default function Shipping() {
+  const router = useRouter();
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    pin: '',
+    city: '',
+    state: ''
+  });
+  const [errors, setErrors] = useState({});
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const err = {};
+    
+    if (!form.name) err.name = 'Required';
+    if (!form.email.includes('@')) err.email = 'Invalid email';
+    if (form.phone.length !== 10) err.phone = '10 digits required';
+    if (!form.pin) err.pin = 'Required';
+    if (!form.city) err.city = 'Required';
+    if (!form.state) err.state = 'Required';
+    
+    if (Object.keys(err).length === 0) {
+      sessionStorage.setItem('shipping', JSON.stringify(form));
+      router.push('/payment');
+    } else {
+      setErrors(err);
+    }
+  };
+
+  return (
+    <div className="container">
+      <h1>Shipping Address</h1>
+      
+      <form onSubmit={handleSubmit} className="card">
+        
+        <div className="form-group">
+          <label>Full Name *</label>
+          <input 
+            value={form.name}
+            onChange={(e) => setForm({...form, name: e.target.value})}
+          />
+          {errors.name && <div className="error">{errors.name}</div>}
+        </div>
+
+        <div className="form-group">
+          <label>Email *</label>
+          <input 
+            type="email"
+            value={form.email}
+            onChange={(e) => setForm({...form, email: e.target.value})}
+          />
+          {errors.email && <div className="error">{errors.email}</div>}
+        </div>
+
+        <div className="form-group">
+          <label>Phone *</label>
+          <input 
+            type="tel"
+            value={form.phone}
+            onChange={(e) => setForm({...form, phone: e.target.value})}
+            maxLength="10"
+          />
+          {errors.phone && <div className="error">{errors.phone}</div>}
+        </div>
+
+        <div className="form-group">
+          <label>PIN Code *</label>
+          <input 
+            value={form.pin}
+            onChange={(e) => setForm({...form, pin: e.target.value})}
+            maxLength="6"
+          />
+          {errors.pin && <div className="error">{errors.pin}</div>}
+        </div>
+
+        <div className="form-group">
+          <label>City *</label>
+          <input 
+            value={form.city}
+            onChange={(e) => setForm({...form, city: e.target.value})}
+          />
+          {errors.city && <div className="error">{errors.city}</div>}
+        </div>
+
+        <div className="form-group">
+          <label>State *</label>
+          <input 
+            value={form.state}
+            onChange={(e) => setForm({...form, state: e.target.value})}
+          />
+          {errors.state && <div className="error">{errors.state}</div>}
+        </div>
+
+        <button type="submit" className="btn">
+          Continue to Payment
+        </button>
+        
+      </form>
+    </div>
+  );
+}

@@ -9,6 +9,28 @@ export default function Cart({ cartData }) {
   );
   const total = subtotal + cartData.shipping_fee - cartData.discount_applied;
 
+  const handleCheckout = () => {
+  // Save cart data to sessionStorage
+  const cartToSave = {
+    items: cartData.cartItems.map(item => ({
+      id: item.product_id,
+      name: item.product_name,
+      price: item.product_price,
+      qty: item.quantity,
+      image: item.image
+    })),
+    shipping: cartData.shipping_fee,
+    discount: cartData.discount_applied
+  };
+  
+  sessionStorage.setItem('cart', JSON.stringify(cartToSave));
+  router.push('/shipping');
+};
+
+// Update button
+
+
+
   return (
     <div className="container">
       
@@ -58,10 +80,7 @@ export default function Cart({ cartData }) {
         </div>
       </div>
 
-      <button 
-        className="btn"
-        onClick={() => router.push('/shipping')}
-      >
+      <button className="btn" onClick={handleCheckout}>
         Proceed to Checkout
       </button>
       
