@@ -35,9 +35,21 @@ export default function Payment() {
       <div className="card">
         <h2>Items</h2>
         {cart.items.map(item => (
-          <div key={item.id} className="summary-row">
-            <span>{item.name} (x{item.qty})</span>
-            <span>₹{item.price * item.qty}</span>
+          <div key={item.id} className="cart-item">
+            <div className="cart-item-content">
+              <img 
+                src={item.image} 
+                alt={item.name} 
+                className="item-image"
+              />
+              <div className="item-details">
+                <h3>{item.name}</h3>
+                <p>Qty: {item.qty}</p>
+              </div>
+            </div>
+            <div className="item-price">
+              ₹{item.price * item.qty}
+            </div>
           </div>
         ))}
         
