@@ -3,9 +3,13 @@ import { useRouter } from 'next/router';
 
 export default function Payment() {
   const router = useRouter();
+  //set initial state for shipping info, cart data, and payment processing status.
   const [shipping, setShipping] = useState(null);
   const [cart, setCart] = useState(null);
   const [paying, setPaying] = useState(false);
+  
+
+  // loading shipping and cart data from sessionStorage when the component mounts
 
   useEffect(() => {
     const shippingData = sessionStorage.getItem('shipping');
@@ -23,6 +27,7 @@ export default function Payment() {
   );
   const total = subtotal + cart.shipping - cart.discount;
 
+  //waiting for 2 seconds to simulate payment processing before navigating to success page.
   const handlePay = () => {
     setPaying(true);
     setTimeout(() => router.push('/success'), 2000);

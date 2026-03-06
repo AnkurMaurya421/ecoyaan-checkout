@@ -1,8 +1,11 @@
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/router'; // importing useRouter for navigation
 
+
+// createing cart component to display cart items and order summary
 export default function Cart({ cartData }) {
   const router = useRouter();
   
+  //calculating subtotal and total amounts using reduce for better readability and maintainability
   const subtotal = cartData.cartItems.reduce(
     (total, item) => total + (item.product_price * item.quantity), 
     0
@@ -10,7 +13,7 @@ export default function Cart({ cartData }) {
   const total = subtotal + cartData.shipping_fee - cartData.discount_applied;
 
   const handleCheckout = () => {
-  // Save cart data to sessionStorage
+  // Save cart data to sessionStorage for cross-page access during checkout
   const cartToSave = {
     items: cartData.cartItems.map(item => ({
       id: item.product_id,
@@ -24,11 +27,9 @@ export default function Cart({ cartData }) {
   };
   
   sessionStorage.setItem('cart', JSON.stringify(cartToSave));
+  // Navigate to shipping page to continue checkout process
   router.push('/shipping');
 };
-
-// Update button
-
 
 
   return (
@@ -88,7 +89,10 @@ export default function Cart({ cartData }) {
   );
 }
 
+// Fetching cart data on the server side to ensure the page is pre-rendered with the necessary information for better performance and SEO
 export async function getServerSideProps() {
+  //using dummy data for cart items, shipping fee, and discount to simulate a real-world scenario. 
+  // In a production application, this data would typically be asynchronously fetched from a database or an API based on the user's session or authentication status.
   const cartData = {
     cartItems: [
       {
@@ -109,6 +113,8 @@ export async function getServerSideProps() {
     shipping_fee: 50,
     discount_applied: 100
   };
-
+ //automatically generates the props for the page component, allowing it to receive the cart data
+ //  as a prop when the page is rendered. This approach ensures that the cart information is available 
+ // on the initial page load, improving user experience and performance.
   return { props: { cartData } };
 }

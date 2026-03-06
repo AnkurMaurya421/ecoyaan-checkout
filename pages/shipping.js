@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState } from 'react'; // importing useState for managing form state and validation errors
 import { useRouter } from 'next/router';
 
 export default function Shipping() {
   const router = useRouter();
+  // set the initial form state
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -11,8 +12,11 @@ export default function Shipping() {
     city: '',
     state: ''
   });
+  //set initial state for form validation errors
   const [errors, setErrors] = useState({});
-
+ 
+  //handle form submission with validation checks.
+  //if all goes right then navigate to payment page
   const handleSubmit = (e) => {
     e.preventDefault();
     const err = {};
@@ -23,6 +27,9 @@ export default function Shipping() {
     if (!form.pin) err.pin = 'Required';
     if (!form.city) err.city = 'Required';
     if (!form.state) err.state = 'Required';
+    
+    //pushing shipping data to sessionStorage for cross acess during checkout process 
+    // and navigating to payment page if there are no validation errors. 
     
     if (Object.keys(err).length === 0) {
       sessionStorage.setItem('shipping', JSON.stringify(form));
