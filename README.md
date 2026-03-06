@@ -2,7 +2,7 @@
 
 Server-side rendered checkout flow with Next.js and plain CSS.
 
-**Live Demo:** [Add URL after deployment]
+**Live Demo:** [https://ecoyaan-checkout-fawn.vercel.app/]
 
 ---
 
