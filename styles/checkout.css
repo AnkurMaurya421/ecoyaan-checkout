@@ -212,3 +212,52 @@ input:focus {
     margin-left: 15%;
     
 }
+
+
+/* Sticky bottom buttons */
+.sticky-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1px solid #ddd;
+  padding: 16px;
+}
+
+.sticky-nav-container {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  gap: 12px;
+}
+
+.btn-back {
+  width: 30%;
+  padding: 14px;
+  background: white;
+  color: #059669;
+  border: 1px solid #059669;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.btn-next {
+  width: 70%;
+  padding: 14px;
+  background: #059669;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.btn-next:disabled {
+  background: #999;
+}
+
+.container {
+  padding-bottom: 100px;
+}
