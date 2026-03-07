@@ -1,9 +1,11 @@
-import { useState } from 'react'; // importing useState for managing form state and validation errors
+import { useState,useContext } from 'react'; // importing useState for managing form state and validation errors
 import { useRouter } from 'next/router';
+import { CheckoutContext } from '../context/CheckoutContext';
 
 export default function Shipping() {
   const router = useRouter();
   // set the initial form state
+  const { addresses, setAddresses, setSelectedAddress } = useContext(CheckoutContext);
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -19,8 +21,9 @@ export default function Shipping() {
   //if all goes right then navigate to payment page
   const handleSubmit = (e) => {
     e.preventDefault();
-    const err = {};
     
+    // Validate
+    const err = {};
     if (!form.name) err.name = 'Required';
     if (!form.email.includes('@')) err.email = 'Invalid email';
     if (form.phone.length !== 10) err.phone = '10 digits required';
@@ -28,15 +31,22 @@ export default function Shipping() {
     if (!form.city) err.city = 'Required';
     if (!form.state) err.state = 'Required';
     
-    //pushing shipping data to sessionStorage for cross acess during checkout process 
-    // and navigating to payment page if there are no validation errors. 
-    
-    if (Object.keys(err).length === 0) {
-      sessionStorage.setItem('shipping', JSON.stringify(form));
-      router.push('/payment');
-    } else {
+    if (Object.keys(err).length > 0) {
       setErrors(err);
+      return;
     }
+    
+    // Add new address to Context
+    const newAddress = {
+      id: Date.now(),
+      ...form,
+      isDefault: addresses.length === 0 // First address is default
+    };
+    
+    setAddresses([...addresses, newAddress]);
+    setSelectedAddress(newAddress);
+    
+    router.push('/payment');
   };
 
   return (
