@@ -17,9 +17,41 @@ npm run dev
 
 ## Tech Stack
 
-- Next.js 14 (Pages Router)
+- Next.js 14 (Pages Router with SSR)
+- Context API for state management
+- localStorage for data persistence
 - Plain CSS
-- sessionStorage for state
+
+---
+
+## Features
+
+- Server-side rendering on cart page
+- Context API + localStorage (data persists on reload)
+- Multiple address management (add/select/delete)
+- Form validation with error messages
+- Sticky bottom navigation (Back/Next buttons)
+- Mobile responsive design
+
+---
+
+## Architecture
+
+**State Management:**
+- Context API provides global state
+- localStorage syncs automatically via useEffect
+- Data persists across page reloads
+
+**Flow:**
+```
+Cart (SSR) → Shipping (multiple addresses) → Payment (review) → Success
+```
+
+**Why Context API + localStorage:**
+- Context API manages state across components
+- localStorage provides persistence on reload
+- Automatic sync between Context and storage
+- Meets requirement: "context is maintained even after page reload"
 
 ---
 
@@ -27,40 +59,13 @@ npm run dev
 ```
 pages/
   index.js       # Cart (SSR)
-  shipping.js    # Form with validation
-  payment.js     # Review
+  shipping.js    # Address management
+  payment.js     # Order review
   success.js     # Confirmation
+context/
+  CheckoutContext.js  # Global state + localStorage sync
 styles/
   checkout.css   # All styles
 ```
 
 ---
-
-## Features
-
-- Server-side rendering on cart
-- Form validation
-- State persistence via sessionStorage
-- Mobile responsive
-
----
-
-## Architecture Choices
-
-**SSR on cart page:** Product data from server, better SEO
-
-**Plain CSS:** Simple, no dependencies, full control
-
-**sessionStorage:** Standard for checkout flows, persists data between pages
-
-**Pages Router:** Simpler SSR than App Router
-
----
-
-## Flow
-```
-Cart → saves data → Shipping → saves data → Payment → Success
-```
-
-
-
