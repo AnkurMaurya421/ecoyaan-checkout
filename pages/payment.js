@@ -37,8 +37,8 @@ export default function Payment() {
             <div className="item-price">₹{item.price * item.qty}</div>
           </div>
         ))}
-        
-        <div style={{borderTop: '1px solid #eee', marginTop: '16px', paddingTop: '16px'}}>
+
+        <div style={{ borderTop: '1px solid #eee', marginTop: '16px', paddingTop: '16px' }}>
           <div className="summary-row"><span>Subtotal</span><span>₹{subtotal}</span></div>
           <div className="summary-row"><span>Shipping</span><span>₹{cart.shipping}</span></div>
           {cart.discount > 0 && (
@@ -58,9 +58,25 @@ export default function Payment() {
         </div>
       </div>
 
-      <button className="btn" onClick={handlePay} disabled={paying}>
-        {paying ? 'Processing...' : `Pay ₹${total}`}
-      </button>
+      <div className="sticky-nav">
+        <div className="sticky-nav-container">
+          <button
+            type="button"
+            className="btn-back"
+            onClick={() => router.push('/shipping')}
+          >
+            ← Back
+          </button>
+          <button
+            type="button"
+            className="btn-next"
+            onClick={handlePay}
+            disabled={paying}
+          >
+            {paying ? 'Processing...' : `Pay ₹${total} →`}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
