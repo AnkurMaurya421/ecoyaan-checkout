@@ -1,19 +1,14 @@
 import { useRouter } from 'next/router'; // importing useRouter for navigation
-
+import { useContext, useEffect } from 'react';
+import { CheckoutContext } from '../context/CheckoutContext';
 
 // createing cart component to display cart items and order summary
 export default function Cart({ cartData }) {
   const router = useRouter();
-  
-  //calculating subtotal and total amounts using reduce for better readability and maintainability
-  const subtotal = cartData.cartItems.reduce(
-    (total, item) => total + (item.product_price * item.quantity), 
-    0
-  );
-  const total = subtotal + cartData.shipping_fee - cartData.discount_applied;
+  const { setCart } = useContext(CheckoutContext); // using context to manage cart state across the application
 
-  const handleCheckout = () => {
-  // Save cart data to sessionStorage for cross-page access during checkout
+
+  useEffect(() => {
   const cartToSave = {
     items: cartData.cartItems.map(item => ({
       id: item.product_id,
@@ -25,11 +20,19 @@ export default function Cart({ cartData }) {
     shipping: cartData.shipping_fee,
     discount: cartData.discount_applied
   };
-  
-  sessionStorage.setItem('cart', JSON.stringify(cartToSave));
-  // Navigate to shipping page to continue checkout process
-  router.push('/shipping');
-};
+  setCart(cartToSave);
+}, [cartData, setCart]);
+
+  //calculating subtotal and total amounts using reduce for better readability and maintainability
+  const subtotal = cartData.cartItems.reduce(
+    (total, item) => total + (item.product_price * item.quantity), 
+    0
+  );
+  const total = subtotal + cartData.shipping_fee - cartData.discount_applied;
+
+  const handleCheckout = () => {
+  router.push('/shipping'); // navigating to the shipping page when the user clicks the checkout button
+     };
 
 
   return (
