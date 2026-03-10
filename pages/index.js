@@ -1,65 +1,116 @@
-import { useRouter } from 'next/router'; // importing useRouter for navigation
+//import necessary hooks and context
+import { useRouter } from 'next/router';
 import { useContext, useEffect } from 'react';
 import { CheckoutContext } from '../context/CheckoutContext';
 
-// createing cart component to display cart items and order summary
+// This is the main cart page component that displays cart items and order summary
 export default function Cart({ cartData }) {
+  // Get router for navigation and context for cart state and functions
   const router = useRouter();
-  const { setCart } = useContext(CheckoutContext); // using context to manage cart state across the application
+  // Destructure cart state and functions from context
+  const { cart, setCart, updateQuantity, removeItem } = useContext(CheckoutContext);
 
-
+// On mount, initialize cart state with data from server (or localStorage if available)
   useEffect(() => {
-  const cartToSave = {
-    items: cartData.cartItems.map(item => ({
-      id: item.product_id,
-      name: item.product_name,
-      price: item.product_price,
-      qty: item.quantity,
-      image: item.image
-    })),
-    shipping: cartData.shipping_fee,
-    discount: cartData.discount_applied
-  };
-  setCart(cartToSave);
-}, [cartData, setCart]);
+    const cartToSave = {
+      items: cartData.cartItems.map(item => ({
+        id: item.product_id,
+        name: item.product_name,
+        price: item.product_price,
+        qty: item.quantity,
+        image: item.image
+      })),
+      shipping: cartData.shipping_fee,
+      discount: cartData.discount_applied
+    };
+    setCart(cartToSave);
+  }, [cartData, setCart]);
 
-  //calculating subtotal and total amounts using reduce for better readability and maintainability
-  const subtotal = cartData.cartItems.reduce(
-    (total, item) => total + (item.product_price * item.quantity), 
+  // Function to reset cart to original items (for testing purposes)
+  const handleResetCart = () => {
+    localStorage.clear();
+    window.location.reload();
+  };
+
+  if (!cart) return null;
+
+  // Calculate subtotal, shipping, and total based on cart items and rules
+  const subtotal = cart.items.reduce(
+    (total, item) => total + (item.price * item.qty), 
     0
   );
-  const total = subtotal + cartData.shipping_fee - cartData.discount_applied;
+  
+  // Free shipping for orders above ₹700, otherwise use cart's shipping fee
+  const shipping = subtotal > 700 ? 0 : cart.shipping;
+  const total = subtotal + shipping - cart.discount;
 
+  // Function to navigate to shipping page when user clicks checkout
   const handleCheckout = () => {
-  router.push('/shipping'); // navigating to the shipping page when the user clicks the checkout button
-     };
-
+    router.push('/shipping');
+  };
 
   return (
     <div className="container">
-      
-      <h1>Shopping Cart</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+        <h1 style={{ margin: 0 }}>Shopping Cart</h1>
+        <button 
+          className="btn-reset-cart"
+          onClick={handleResetCart}
+          title="Reset cart to original items"
+        >
+          🔄 Reset Cart
+        </button>
+      </div>
       
       <div className="card">
         <h2>Items</h2>
-        {cartData.cartItems.map(item => (
-          <div key={item.product_id} className="cart-item">
-            <div className="cart-item-content">
-              <img 
-                src={item.image} 
-                alt={item.product_name} 
-                className="item-image"
-              />
-              <div className="item-details">
-                <h3>{item.product_name}</h3>
-                <p>₹{item.product_price} × {item.quantity}</p>
+        {cart.items.length === 0 ? (
+          <p style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
+            Your cart is empty. Click "Reset Cart" to reload items.
+          </p>
+        ) : (
+          cart.items.map(item => (
+            <div key={item.id} className="cart-item">
+              <div className="cart-item-content">
+                <img 
+                  src={item.image} 
+                  alt={item.name} 
+                  className="item-image"
+                />
+                <div className="item-details">
+                  <h3>{item.name}</h3>
+                  <p>₹{item.price} each</p>
+                  
+                  <div className="quantity-controls">
+                    <button 
+                      onClick={() => updateQuantity(item.id, item.qty - 1)}
+                      disabled={item.qty <= 1}
+                      className="qty-btn"
+                    >
+                      −
+                    </button>
+                    <span className="qty-display">{item.qty}</span>
+                    <button 
+                      onClick={() => updateQuantity(item.id, item.qty + 1)}
+                      className="qty-btn"
+                    >
+                      +
+                    </button>
+                    <button 
+                      className="btn-remove-item"
+                      onClick={() => removeItem(item.id)}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div className="item-price">
+                ₹{item.price * item.qty}
               </div>
             </div>
-            <div className="item-price">
-              ₹{item.product_price * item.quantity}
-            </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
       <div className="card">
@@ -70,12 +121,25 @@ export default function Cart({ cartData }) {
         </div>
         <div className="summary-row">
           <span>Shipping</span>
-          <span>₹{cartData.shipping_fee}</span>
+          <span>
+            {shipping === 0 ? (
+              <span className="free-shipping">FREE</span>
+            ) : (
+              `₹${shipping}`
+            )}
+          </span>
         </div>
-        {cartData.discount_applied > 0 && (
+        
+        {subtotal > 0 && subtotal <= 700 && (
+          <p className="shipping-message">
+            Add ₹{700 - subtotal} more for free shipping! 🎉
+          </p>
+        )}
+        
+        {cart.discount > 0 && (
           <div className="summary-row discount">
             <span>Discount</span>
-            <span>-₹{cartData.discount_applied}</span>
+            <span>-₹{cart.discount}</span>
           </div>
         )}
         <div className="summary-row total">
@@ -84,18 +148,26 @@ export default function Cart({ cartData }) {
         </div>
       </div>
 
-      <button className="btn" onClick={handleCheckout}>
-        Proceed to Checkout
-      </button>
       
+      <div className="sticky-nav">
+        <div className="sticky-nav-container">
+          <button 
+            type="button" 
+            className="btn-checkout"
+            onClick={handleCheckout} 
+            disabled={cart.items.length === 0}
+          >
+            Proceed to Checkout →
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
 
-// Fetching cart data on the server side to ensure the page is pre-rendered with the necessary information for better performance and SEO
+
+// This function runs on the server before rendering the page and provides cart data as props
 export async function getServerSideProps() {
-  //using dummy data for cart items, shipping fee, and discount to simulate a real-world scenario. 
-  // In a production application, this data would typically be asynchronously fetched from a database or an API based on the user's session or authentication status.
   const cartData = {
     cartItems: [
       {
@@ -110,14 +182,12 @@ export async function getServerSideProps() {
         product_name: "Reusable Cotton Produce Bags",
         product_price: 450,
         quantity: 1,
-        image: "https://images.unsplash.com/photo-1574365569389-a10d488ca3fb?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        image: "https://images.unsplash.com/photo-1574365569389-a10d488ca3fb?q=80&w=1170&auto=format&fit=crop"
       }
     ],
     shipping_fee: 50,
     discount_applied: 100
   };
- //automatically generates the props for the page component, allowing it to receive the cart data
- //  as a prop when the page is rendered. This approach ensures that the cart information is available 
- // on the initial page load, improving user experience and performance.
+
   return { props: { cartData } };
 }
