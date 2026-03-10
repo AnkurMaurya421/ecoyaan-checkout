@@ -58,7 +58,7 @@ export default function Cart({ cartData }) {
           onClick={handleResetCart}
           title="Reset cart to original items"
         >
-          🔄 Reset Cart
+          🔄 Reset Cart (testing purpose only)
         </button>
       </div>
       
