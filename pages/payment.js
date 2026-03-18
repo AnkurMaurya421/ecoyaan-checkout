@@ -4,7 +4,7 @@ import { CheckoutContext } from '../context/CheckoutContext';
 
 export default function Payment() {
   const router = useRouter();
-  const { cart, selectedAddress, addresses } = useContext(CheckoutContext);
+  const { cart, selectedAddress, addresses, appliedCoupon, getCouponDiscount } = useContext(CheckoutContext);
   const [paying, setPaying] = useState(false);
 
   // Redirect if no cart, no address, or selected address was deleted
@@ -22,8 +22,9 @@ export default function Payment() {
   }
 
   const subtotal = cart.items.reduce((sum, item) => sum + (item.price * item.qty), 0);
-  const shipping = subtotal > 700 ? 0 : cart.shipping;
-  const total = subtotal + shipping - cart.discount;
+  const { couponDiscount, freeShipping } = getCouponDiscount(subtotal);
+  const shipping = (subtotal > 700 || freeShipping) ? 0 : cart.shipping;
+  const total = subtotal + shipping - cart.discount - couponDiscount;
   
   // Function to simulate payment processing and redirect to success page
   const handlePay = () => {
@@ -52,6 +53,14 @@ export default function Payment() {
 
         <div style={{ borderTop: '1px solid #eee', marginTop: '16px', paddingTop: '16px' }}>
           <div className="summary-row"><span>Subtotal</span><span>₹{subtotal}</span></div>
+
+          {couponDiscount > 0 && (
+            <div className="summary-row coupon-discount-row">
+              <span>Coupon Discount ({appliedCoupon.code})</span>
+              <span>- ₹{couponDiscount}</span>
+            </div>
+          )}
+
           <div className="summary-row">
             <span>Shipping</span>
             <span>
@@ -65,9 +74,26 @@ export default function Payment() {
           {cart.discount > 0 && (
             <div className="summary-row discount"><span>Discount</span><span>-₹{cart.discount}</span></div>
           )}
-          <div className="summary-row total"><span>Total</span><span>₹{total}</span></div>
+          <div className="summary-row total"><span>You Pay</span><span>₹{total}</span></div>
         </div>
       </div>
+
+      {/* Applied Coupon Info */}
+      {appliedCoupon && (
+        <div className="card">
+          <div className="applied-coupon-badge" style={{ margin: 0, padding: 0, background: 'none', border: 'none' }}>
+            <div className="applied-coupon-info">
+              <span className="coupon-icon">🏷️</span>
+              <div>
+                <span className="applied-code">{appliedCoupon.code}</span>
+                <span className="applied-desc">{appliedCoupon.description}</span>
+              </div>
+            </div>
+            {couponDiscount > 0 && <span className="savings-text">You saved ₹{couponDiscount}</span>}
+            {freeShipping && <span className="savings-text">Free shipping applied!</span>}
+          </div>
+        </div>
+      )}
 
       <div className="card">
         <h2>Shipping To</h2>
